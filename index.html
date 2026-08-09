@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BARKLA'S PREMIER LEAGUE 26/27</title>
+<style>
+  :root {
+    --bg:#0f0d1a; --panel:#191630; --panel2:#221d3d; --line:#2f2952;
+    --ink:#f2f0ff; --dim:#a09cc4; --accent:#00ff87; --accent2:#04f5ff;
+    --pink:#e90052; --amber:#ffb800;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1120px;margin:0 auto;padding:20px 16px 64px}
+  header{margin:8px 0 24px}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--dim);font-size:13px}
+  .grid{display:grid;gap:16px}
+  @media(min-width:860px){.grid.two{grid-template-columns:1fr 1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;overflow:hidden}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.09em;
+           color:var(--dim);margin:0 0 14px;font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--dim);font-weight:600;font-size:11px;
+     text-transform:uppercase;letter-spacing:.06em;padding:0 8px 8px;white-space:nowrap}
+  td{padding:8px;border-top:1px solid var(--line);white-space:nowrap}
+  td.name{white-space:normal;min-width:120px}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.me td{background:rgba(0,255,135,.07)}
+  .pos{color:var(--dim);width:26px}
+  .tag{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:600}
+  .t-w{background:rgba(0,255,135,.16);color:var(--accent)}
+  .t-d{background:rgba(255,184,0,.16);color:var(--amber)}
+  .t-l{background:rgba(233,0,82,.18);color:#ff5c8a}
+  .hearts{letter-spacing:2px;font-size:15px}
+  .dead{color:#5c5580;text-decoration:line-through}
+  select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+         border-radius:9px;padding:10px 12px;font-size:15px;width:100%;max-width:380px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px}
+  .stat{background:var(--panel2);border-radius:11px;padding:13px}
+  .stat .k{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  .stat .v{font-size:21px;font-weight:650;margin-top:3px;letter-spacing:-.02em}
+  .stat .v small{font-size:12px;color:var(--dim);font-weight:400}
+  .sched{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .gw{width:34px;height:30px;border-radius:7px;display:flex;align-items:center;
+      justify-content:center;font-size:10px;font-weight:600;background:var(--panel2);color:var(--dim)}
+  .gw.double{background:rgba(255,184,0,.2);color:var(--amber)}
+  .gw.triple{background:rgba(233,0,82,.25);color:#ff5c8a}
+  .gw.bomb{background:rgba(4,245,255,.2);color:var(--accent2)}
+  .gw.past{opacity:.42}
+  .gw.now{outline:2px solid var(--accent)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px;color:var(--dim)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .muted{color:var(--dim);font-size:13px}
+  .bar{height:7px;border-radius:4px;background:var(--panel2);overflow:hidden;min-width:70px}
+  .bar i{display:block;height:100%}
+  .rowflex{display:flex;align-items:center;gap:9px}
+  svg{display:block;width:100%;height:auto}
+  .gwsel{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .gwsel select{max-width:150px}
+  footer{margin-top:34px;color:var(--dim);font-size:12px;text-align:center}
+  .empty{color:var(--dim);font-size:13px;padding:14px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="lname"></h1>
+    <div class="sub" id="lsub"></div>
+  </header>
+
+  <div class="card">
+    <h2>Manager overview</h2>
+    <select id="mgr"></select>
+    <div class="stats" id="mstats"></div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="grid two">
+    <div class="card">
+      <h2>H2H league table</h2>
+      <div class="scroll"><table id="tbl"></table></div>
+    </div>
+    <div class="card">
+      <h2>Last Man Standing</h2>
+      <div class="scroll"><table id="lms"></table></div>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="card">
+    <h2>LMS elimination schedule</h2>
+    <div class="sched" id="sched"></div>
+    <div class="legend">
+      <span><i style="background:var(--panel2)"></i>Single</span>
+      <span><i style="background:rgba(255,184,0,.6)"></i>Double</span>
+      <span><i style="background:rgba(233,0,82,.7)"></i>Triple</span>
+      <span><i style="background:rgba(4,245,255,.6)"></i>Bomb</span>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="card">
+    <h2>Gameweek results</h2>
+    <div class="gwsel"><label class="muted" for="gw">Gameweek</label><select id="gw"></select></div>
+    <div class="scroll"><table id="wk"></table></div>
+    <div id="wklms"></div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="card">
+    <h2>League position by gameweek</h2>
+    <div id="chart"></div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <div class="card">
+    <h2>Luck &mdash; points won vs points deserved</h2>
+    <p class="muted" style="margin:-6px 0 14px">
+      Expected points are what each manager would have averaged playing the whole
+      league each week instead of one drawn opponent. Positive means the fixtures have been kind.
+    </p>
+    <div class="scroll"><table id="luck"></table></div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script id="data" type="application/json">{"league_name":"BARKLA'S PREMIER LEAGUE 26/27","league_id":"683481","current_gw":null,"next_gw":1,"generated":"09 Aug 2026, 03:12 UTC","managers":[{"entry":"3312558","entry_name":"TRIZZ","player_name":"Jonah Lilley","h2h_rank":null,"h2h_points":0,"played":0,"won":0,"drawn":0,"lost":0,"points_for":0,"total_points":null,"overall_rank":null,"squad_value":null,"next_opponent":null,"lives_left":null,"lms_status":null,"lms_eliminated_gw":null}],"weekly":{},"position_history":{},"luck":[],"lms_standings":[],"lms_schedule":[],"lms_events":{}}</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const $ = id => document.getElementById(id);
+const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const nz = (v,d='—') => (v===null||v===undefined||v==='')?d:v;
+const fmt = v => (v===null||v===undefined||v==='')?'—':Number(v).toLocaleString();
+
+$('lname').textContent = D.league_name || 'FPL H2H League';
+$('lsub').textContent =
+  (D.current_gw ? 'After gameweek ' + D.current_gw : 'Season not started') +
+  (D.next_gw ? ' · next GW ' + D.next_gw : '') +
+  ' · updated ' + D.generated;
+$('foot').textContent = 'League ' + nz(D.league_id,'') + ' · generated ' + D.generated;
+
+/* ---------- H2H table ---------- */
+(function(){
+  const t = $('tbl');
+  if(!D.managers.length){ t.outerHTML = '<div class="empty">No managers yet.</div>'; return; }
+  let h = '<thead><tr><th></th><th>Manager</th><th class="num">Pl</th><th class="num">W</th>'
+        + '<th class="num">D</th><th class="num">L</th><th class="num">Pts</th><th class="num">PF</th></tr></thead><tbody>';
+  D.managers.forEach(m=>{
+    h += '<tr data-e="'+m.entry+'"><td class="pos num">'+nz(m.h2h_rank)+'</td>'
+      + '<td class="name"><strong>'+esc(m.entry_name)+'</strong><br><span class="muted">'+esc(m.player_name)+'</span></td>'
+      + '<td class="num">'+nz(m.played,0)+'</td><td class="num">'+nz(m.won,0)+'</td>'
+      + '<td class="num">'+nz(m.drawn,0)+'</td><td class="num">'+nz(m.lost,0)+'</td>'
+      + '<td class="num"><strong>'+nz(m.h2h_points,0)+'</strong></td>'
+      + '<td class="num">'+fmt(m.points_for)+'</td></tr>';
+  });
+  t.innerHTML = h+'</tbody>';
+})();
+
+/* ---------- LMS ---------- */
+(function(){
+  const t = $('lms');
+  if(!D.lms_standings.length){
+    t.outerHTML = '<div class="empty">Last Man Standing has not been set up yet. '
+                + 'Run <code>lms.py allocate</code> after GW1.</div>';
+    return;
+  }
+  let h = '<thead><tr><th></th><th>Manager</th><th>Lives</th><th class="num">Out</th></tr></thead><tbody>';
+  D.lms_standings.forEach(r=>{
+    const alive = r.lives_left>0;
+    const hearts = alive ? '♥'.repeat(r.lives_left)+'<span style="color:#3a3363">'
+                           +'♡'.repeat(Math.max(0,3-r.lives_left))+'</span>' : '—';
+    h += '<tr data-e="'+r.entry+'"><td class="pos num">'+nz(r.position)+'</td>'
+      + '<td class="name '+(alive?'':'dead')+'"><strong>'+esc(r.entry_name)+'</strong>'
+      + (r.status==='WINNER'?' <span class="tag t-w">WINNER</span>':'')+'</td>'
+      + '<td class="hearts" style="color:var(--pink)">'+hearts+'</td>'
+      + '<td class="num muted">'+(alive?'':('GW'+nz(r.eliminated_gw,'?')))+'</td></tr>';
+  });
+  t.innerHTML = h+'</tbody>';
+})();
+
+/* ---------- LMS schedule strip ---------- */
+(function(){
+  const el = $('sched');
+  if(!D.lms_schedule.length){ el.innerHTML = '<span class="muted">Not allocated yet.</span>'; return; }
+  el.innerHTML = D.lms_schedule.map(s=>{
+    const cls = ['gw', s.type];
+    if(D.current_gw && s.event <= D.current_gw) cls.push('past');
+    if(D.next_gw && s.event === D.next_gw) cls.push('now');
+    const mark = s.type==='double'?'×2':s.type==='triple'?'×3':s.type==='bomb'?'💣':'';
+    return '<div class="'+cls.join(' ')+'" title="GW'+s.event+' — '+s.type+'">'
+         + s.event + (mark?'<br>':'') + mark + '</div>';
+  }).join('');
+})();
+
+/* ---------- Gameweek results ---------- */
+(function(){
+  const sel = $('gw'), gws = Object.keys(D.weekly).map(Number).sort((a,b)=>b-a);
+  if(!gws.length){ $('wk').outerHTML = '<div class="empty">No results yet.</div>'; sel.style.display='none'; return; }
+  sel.innerHTML = gws.map(g=>'<option value="'+g+'">Gameweek '+g+'</option>').join('');
+  function draw(g){
+    const rows = D.weekly[String(g)]||[];
+    let h = '<thead><tr><th>Home</th><th class="num">Score</th><th></th><th class="num">Score</th><th>Away</th></tr></thead><tbody>';
+    rows.forEach(m=>{
+      const w1 = m.s1>m.s2, w2 = m.s2>m.s1;
+      h += '<tr><td class="name" style="text-align:right'+(w1?';font-weight:650':'')+'">'+esc(m.e1)+'</td>'
+        + '<td class="num"'+(w1?' style="color:var(--accent);font-weight:650"':'')+'>'+m.s1+'</td>'
+        + '<td class="muted" style="text-align:center">v</td>'
+        + '<td class="num"'+(w2?' style="color:var(--accent);font-weight:650"':'')+'>'+m.s2+'</td>'
+        + '<td class="name"'+(w2?' style="font-weight:650"':'')+'>'+esc(m.e2)+'</td></tr>';
+    });
+    $('wk').innerHTML = h+'</tbody>';
+    const ev = D.lms_events[String(g)]||[];
+    $('wklms').innerHTML = ev.length
+      ? '<p class="muted" style="margin:14px 0 0"><strong style="color:var(--pink)">LMS:</strong> '
+        + ev.map(e=>esc(e.name)+' ('+e.score+')'+(e.out?' <span class="tag t-l">OUT</span>':'')).join(' · ')+'</p>'
+      : '';
+  }
+  sel.onchange = e => draw(+e.target.value);
+  draw(gws[0]);
+})();
+
+/* ---------- Manager panel ---------- */
+(function(){
+  const sel = $('mgr');
+  if(!D.managers.length){ sel.style.display='none'; return; }
+  sel.innerHTML = D.managers.map(m=>
+    '<option value="'+m.entry+'">'+esc(m.entry_name)+' — '+esc(m.player_name)+'</option>').join('');
+  function draw(id){
+    const m = D.managers.find(x=>x.entry===id); if(!m) return;
+    const opp = m.next_opponent;
+    const lives = (m.lives_left===null||m.lives_left===undefined)
+      ? '<small>not set up</small>'
+      : (m.lives_left>0
+          ? '<span style="color:var(--pink)">'+'♥'.repeat(m.lives_left)+'</span>'
+          : '<small>eliminated GW'+nz(m.lms_eliminated_gw,'?')+'</small>');
+    const cards = [
+      ['Total points', fmt(m.total_points)],
+      ['Overall rank', fmt(m.overall_rank)],
+      ['H2H position', nz(m.h2h_rank)+' <small>of '+D.managers.length+'</small>'],
+      ['H2H record', nz(m.won,0)+'-'+nz(m.drawn,0)+'-'+nz(m.lost,0)+' <small>'+nz(m.h2h_points,0)+' pts</small>'],
+      ['LMS lives', lives],
+      ['Next opponent', opp ? esc(opp.name)+' <small>GW'+nz(D.next_gw,'')+'</small>'
+                            : '<small>no fixture</small>'],
+    ];
+    $('mstats').innerHTML = cards.map(([k,v])=>
+      '<div class="stat"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>').join('');
+    document.querySelectorAll('tr[data-e]').forEach(tr=>
+      tr.classList.toggle('me', tr.dataset.e===id));
+    drawChart(id);
+  }
+  sel.onchange = e => draw(e.target.value);
+  window.__drawMgr = draw;
+  draw(D.managers[0].entry);
+})();
+
+/* ---------- Position chart ---------- */
+function drawChart(highlight){
+  const H = D.position_history, ids = Object.keys(H);
+  if(!ids.length){ $('chart').innerHTML = '<div class="empty">No gameweeks played yet.</div>'; return; }
+  const n = D.managers.length, len = Math.max(...ids.map(i=>H[i].length));
+  const W=880, HT=Math.max(220, n*17+60), P={t:16,r:16,b:28,l:30};
+  const x = i => P.l + (len<2?0:i*(W-P.l-P.r)/(len-1));
+  const y = p => P.t + (n<2?0:(p-1)*(HT-P.t-P.b)/(n-1));
+  const name = id => (D.managers.find(m=>m.entry===id)||{}).entry_name || id;
+  let s = '<svg viewBox="0 0 '+W+' '+HT+'" role="img" aria-label="League position by gameweek">';
+  for(let p=1;p<=n;p+=Math.max(1,Math.round(n/8))){
+    s += '<line x1="'+P.l+'" y1="'+y(p)+'" x2="'+(W-P.r)+'" y2="'+y(p)+'" stroke="#2f2952" stroke-width="1"/>'
+       + '<text x="'+(P.l-8)+'" y="'+(y(p)+4)+'" fill="#a09cc4" font-size="10" text-anchor="end">'+p+'</text>';
+  }
+  for(let i=0;i<len;i+=Math.max(1,Math.ceil(len/10))){
+    s += '<text x="'+x(i)+'" y="'+(HT-8)+'" fill="#a09cc4" font-size="10" text-anchor="middle">'+(i+1)+'</text>';
+  }
+  ids.forEach(id=>{
+    const pts = H[id].map((p,i)=>x(i)+','+y(p)).join(' '), on = id===highlight;
+    s += '<polyline points="'+pts+'" fill="none" stroke="'+(on?'#00ff87':'#3d3663')+'" '
+       + 'stroke-width="'+(on?2.6:1.2)+'" stroke-linejoin="round" stroke-linecap="round"'
+       + (on?'':' opacity=".8"')+'><title>'+esc(name(id))+'</title></polyline>';
+  });
+  const hp = H[highlight];
+  if(hp && hp.length){
+    s += '<circle cx="'+x(hp.length-1)+'" cy="'+y(hp[hp.length-1])+'" r="4" fill="#00ff87"/>';
+  }
+  s += '</svg>';
+  $('chart').innerHTML = s;
+}
+
+/* ---------- Luck ---------- */
+(function(){
+  const t = $('luck');
+  if(!D.luck.length){ t.outerHTML = '<div class="empty">No results yet.</div>'; return; }
+  const mx = Math.max(1, ...D.luck.map(r=>Math.abs(r.luck)));
+  let h = '<thead><tr><th>Manager</th><th class="num">Pts</th><th class="num">Expected</th>'
+        + '<th class="num">Diff</th><th style="width:38%">&nbsp;</th></tr></thead><tbody>';
+  D.luck.forEach(r=>{
+    const good = r.luck>=0, w = Math.abs(r.luck)/mx*100;
+    h += '<tr data-e="'+r.entry+'"><td class="name"><strong>'+esc(r.entry_name)+'</strong></td>'
+      + '<td class="num">'+r.actual+'</td><td class="num muted">'+r.expected.toFixed(1)+'</td>'
+      + '<td class="num" style="color:'+(good?'var(--accent)':'#ff5c8a')+';font-weight:650">'
+      + (good?'+':'')+r.luck.toFixed(1)+'</td>'
+      + '<td><div class="rowflex"><div class="bar"><i style="width:'+w+'%;background:'
+      + (good?'var(--accent)':'var(--pink)')+'"></i></div></div></td></tr>';
+  });
+  t.innerHTML = h+'</tbody>';
+})();
+</script>
+</body>
+</html>
