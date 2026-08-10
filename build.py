@@ -521,6 +521,21 @@ def _significant(payload: dict) -> str:
                       sort_keys=True, separators=(",", ":"))
 
 
+TIMESTAMP_FMT = "%d %b %Y, %H:%M UTC"
+HEARTBEAT_HOURS = 24
+
+
+def _age_hours(stamp: str | None) -> float:
+    """How long ago the page says it was generated. inf if unparseable."""
+    if not stamp:
+        return float("inf")
+    try:
+        then = datetime.strptime(stamp, TIMESTAMP_FMT).replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return float("inf")
+    return (datetime.now(timezone.utc) - then).total_seconds() / 3600
+
+
 def patch_html(html_path: Path, payload: dict) -> bool:
     """Replace the data block. Returns True if the file changed."""
     html = html_path.read_text(encoding="utf-8")
@@ -537,7 +552,20 @@ def patch_html(html_path: Path, payload: dict) -> bool:
         existing = None
 
     if existing is not None and _significant(existing) == _significant(payload):
-        return False
+        # Data is unchanged. Normally we write nothing, so the repo does not
+        # collect a commit an hour forever. But if the page has been claiming
+        # the same timestamp for a day, refresh it anyway: otherwise a working
+        # dashboard is indistinguishable from a broken one, which is exactly
+        # the confusion this whole project started with. Costs one commit a
+        # day in the off season, and keeps the repo active so GitHub does not
+        # auto-disable the schedule after 60 days.
+        age = _age_hours(existing.get("generated"))
+        if age < HEARTBEAT_HOURS:
+            return False
+        how_stale = "carrying no readable date" if age == float("inf") \
+            else f"{age:.0f}h stale"
+        print(f"  data unchanged, but the page is {how_stale} "
+              f"- refreshing the timestamp so it is visibly alive")
 
     # separators avoids stray whitespace churn; </ is escaped so the JSON can
     # never terminate the surrounding <script> tag early.
