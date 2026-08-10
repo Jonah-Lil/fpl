@@ -1,0 +1,94 @@
+name: Allocate LMS schedule
+
+# Run this ONCE, after GW1 has finished and everyone has joined the league.
+# It draws the Last Man Standing elimination schedule for the whole season and
+# freezes it into lms_schedule.json, so nobody can claim it was fiddled with
+# later. The seed is published in the commit, so any league member can rerun
+# lms.py themselves and confirm they get the identical draw.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: "Random seed - publish this to the league. Anything works; 683481 is a sensible default."
+        required: true
+        default: "683481"
+      managers:
+        description: "Number of managers. Leave blank to count the league automatically."
+        required: false
+        default: ""
+      overwrite:
+        description: "Replace an existing schedule? Only say yes if you really mean it."
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  allocate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Count managers
+        id: count
+        env:
+          FPL_LEAGUE_ID: "683481"
+        run: |
+          N="${{ inputs.managers }}"
+          if [ -z "$N" ]; then
+            N=$(python3 build.py --count-managers)
+            echo "Counted $N managers in the league."
+          else
+            echo "Using the $N managers you entered."
+          fi
+          echo "n=$N" >> "$GITHUB_OUTPUT"
+
+      - name: Draw the schedule
+        run: |
+          python3 lms.py allocate \
+            --data . \
+            --seed "${{ inputs.seed }}" \
+            --managers "${{ steps.count.outputs.n }}" \
+            ${{ inputs.overwrite && '--overwrite' || '' }}
+
+      - name: Rebuild dashboard with the new schedule
+        env:
+          FPL_LEAGUE_ID: "683481"
+        run: python3 build.py
+
+      - name: Commit
+        run: |
+          git config user.name  "fpl-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lms_schedule.json lms_schedule.csv index.html
+          git commit -m "Allocate LMS schedule (seed ${{ inputs.seed }}, ${{ steps.count.outputs.n }} managers)"
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push
+
+      - name: Summary
+        run: |
+          {
+            echo "### Last Man Standing schedule drawn"
+            echo ""
+            echo "Seed \`${{ inputs.seed }}\`, ${{ steps.count.outputs.n }} managers."
+            echo "Share the seed with your league so they can verify the draw."
+            echo ""
+            echo '```'
+            python3 -c "
+          import json
+          s=json.load(open('lms_schedule.json'))
+          c=s['counts']
+          print(f\"{c['single']} single, {c['double']} double, {c['triple']} triple, {c['bomb']} bomb\")
+          print(f\"capacity {s['scheduled_capacity']} of {s['target_capacity']} needed\")
+          for n in s['notes']: print('-', n)
+          "
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
