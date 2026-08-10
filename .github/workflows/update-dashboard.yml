@@ -1,0 +1,59 @@
+name: Update dashboard
+
+on:
+  schedule:
+    # Hourly at :23. Deliberately not on the hour - GitHub queues every
+    # cron in the world at :00 and drops scheduled runs under load.
+    - cron: "23 * * * *"
+  workflow_dispatch:        # manual "Run workflow" button in the Actions tab
+  push:
+    paths:
+      - "build.py"
+      - "lms.json"
+      - ".github/workflows/update-dashboard.yml"
+
+# Never let a slow run overlap the next hour's run.
+concurrency:
+  group: update-dashboard
+  cancel-in-progress: false
+
+permissions:
+  contents: write           # required to push the regenerated index.html
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No pip install: build.py is standard library only.
+      - name: Rebuild dashboard
+        id: build
+        env:
+          FPL_LEAGUE_ID: "683481"
+        run: python3 build.py
+
+      - name: Commit and push
+        if: steps.build.outputs.changed == 'true'
+        run: |
+          git config user.name  "fpl-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Update dashboard - $(date -u '+%d %b %Y %H:%M UTC')"
+          # Another run may have landed while we were fetching.
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.build.outputs.changed }}" = "true" ]; then
+            echo "Dashboard updated and pushed." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No change in league data - nothing committed." >> "$GITHUB_STEP_SUMMARY"
+          fi
