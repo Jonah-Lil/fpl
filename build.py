@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -47,7 +48,18 @@ class FetchError(RuntimeError):
     pass
 
 
-def get_json(path: str, *, retries: int = 4, timeout: int = 30):
+# The FPL API intermittently rejects requests outright - 403 or 429 from its
+# CDN (GitHub runners live in cloud IP ranges it throttles), or a 503 while the
+# game is being recalculated after matches. These come back instantly, so the
+# old 4 attempts with 1+2+4s of backoff gave up inside 8 seconds and failed the
+# whole run over a blip that had cleared a minute later. Six attempts with
+# capped exponential backoff cover roughly a minute, which is well inside the
+# hourly schedule and the job's 10-minute timeout.
+ATTEMPTS = 6
+MAX_BACKOFF = 20
+
+
+def get_json(path: str, *, retries: int = ATTEMPTS, timeout: int = 30):
     """GET {API}/{path} and parse JSON, retrying on transient failures."""
     url = f"{API}/{path}"
     last = None
@@ -63,12 +75,18 @@ def get_json(path: str, *, retries: int = 4, timeout: int = 30):
             if isinstance(exc, urllib.error.HTTPError) and exc.code == 404:
                 break
             if attempt < retries - 1:
-                sleep = 2 ** attempt
+                # Jitter so a dozen manager-history calls that all trip the
+                # same rate limit do not march back in lockstep and trip it
+                # again together.
+                sleep = min(2 ** attempt, MAX_BACKOFF) + random.uniform(0, 1)
                 print(f"  retry {attempt + 1}/{retries - 1} for {path} "
-                      f"after {type(exc).__name__}: {exc} (sleeping {sleep}s)",
+                      f"after {type(exc).__name__}: {exc} "
+                      f"(sleeping {sleep:.1f}s)",
                       file=sys.stderr)
                 time.sleep(sleep)
-    raise FetchError(f"could not fetch {url}: {last}")
+    raise FetchError(
+        f"could not fetch {url} after {retries} attempts: {last}"
+    )
 
 
 class Fixtures:
@@ -198,7 +216,12 @@ def enrich_from_entries(managers: dict[str, dict]) -> dict[str, dict[int, int]]:
     histories: dict[str, dict[int, int]] = {}
     for eid, m in managers.items():
         try:
-            hist = fetch(f"entry/{eid}/history/")
+            # One shallow-retry budget per manager, deliberately smaller than
+            # ATTEMPTS: a missing history is a warning, not a failed build, and
+            # this loop runs once per league member. At the full budget a
+            # league-wide rate limit would spend ~35s each and walk the job
+            # into its timeout.
+            hist = fetch(f"entry/{eid}/history/", retries=3)
         except FetchError as exc:
             print(f"  warning: no history for entry {eid}: {exc}", file=sys.stderr)
             continue
