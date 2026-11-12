@@ -11,7 +11,9 @@
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#0b0c0e;color:#fff;font-family:'Roboto Condensed','Arial Narrow',sans-serif}
-  .page{min-height:100vh;background-color:#0b0c0e;background-image:radial-gradient(ellipse 60% 45% at 18% 6%,rgba(150,165,185,.26),transparent 70%),radial-gradient(ellipse 50% 40% at 86% 18%,rgba(95,125,80,.2),transparent 70%),radial-gradient(ellipse 90% 45% at 50% 100%,rgba(35,75,35,.38),transparent 70%)}
+  .bg{position:fixed;inset:0;z-index:0;background:#0b0c0e url('bg/practice-arena.jpg') center 30%/cover no-repeat}
+  .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,9,11,.30) 0%,rgba(8,9,11,.50) 45%,rgba(8,9,11,.72) 100%)}
+  .page{position:relative;z-index:1;min-height:100vh}
   .wrap{max-width:1320px;margin:0 auto;padding:28px 24px 32px}
   .tx{text-shadow:0 2px 0 rgba(0,0,0,.5)}
   button{font-family:inherit}
@@ -24,6 +26,12 @@
   .dbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:10px 24px;background:linear-gradient(180deg,#3d4045 0%,#1f2125 48%,#131417 52%,#1d1f23 100%);border-bottom:1px solid #000}
   .dbar .a{font:800 25px 'Roboto Condensed',sans-serif}
   .dbar .b{font:700 18px 'Roboto Condensed',sans-serif;color:#e3e5e8}
+  .dright{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .dl{display:inline-flex;align-items:center;gap:10px;padding:5px 12px;background:linear-gradient(180deg,#0c0d0f,#25282d);border:1px solid #8f9398;transition:opacity .25s}
+  .dl.swap{opacity:0}
+  .dl-label{font:800 13px 'Roboto Condensed',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#c3c7cc}
+  .dl-value{font:900 19px 'Roboto Condensed',sans-serif;color:#fff;font-variant-numeric:tabular-nums;min-width:150px}
+  .dl.urgent{border-color:#ea4a42}.dl.urgent .dl-value{color:#ff8a80}
   /* menu */
   .menu{display:flex;margin-top:22px;background:linear-gradient(180deg,#4a4d52,#16171a);border-top:2px solid #a3a6ab;border-bottom:2px solid #a3a6ab;box-shadow:0 10px 24px rgba(0,0,0,.55)}
   .menu-tabs{display:flex;flex:1;overflow-x:auto;min-width:0}
@@ -123,6 +131,7 @@
 </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"></div>
 <div class="page"><div class="wrap">
 
 <header class="hbar">
@@ -130,7 +139,7 @@
   <h1 id="lname"></h1>
   <span class="hright" id="lid"></span>
 </header>
-<div class="dbar"><span class="a tx" id="gwnow"></span><span class="b tx" id="gwnext"></span></div>
+<div class="dbar"><span class="a tx" id="gwnow"></span><span class="dright"><span class="b tx" id="gwnext"></span><span class="dl" id="dl"><span class="dl-label" id="dlLabel"></span><span class="dl-value" id="dlValue"></span></span></span></div>
 
 <nav class="menu" aria-label="Dashboard sections">
   <button class="arrow" data-act="prevTab" aria-label="Previous tab"><svg width="18" height="24" viewBox="0 0 18 24" aria-hidden="true"><path d="M14 2 L4 12 L14 22" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg></button>
@@ -181,6 +190,28 @@ $('lid').textContent = D.league_id ? 'H2H League ' + D.league_id : '';
 $('gwnow').textContent = D.current_gw ? 'Gameweek ' + D.current_gw + ' complete' : 'Season not started';
 $('gwnext').textContent = D.next_gw ? 'Next: Gameweek ' + D.next_gw : '';
 $('updated').textContent = 'Updated ' + nz(D.generated, '');
+(function deadline(){
+  const box = $('dl'), lab = $('dlLabel'), val = $('dlValue');
+  const t = D.next_deadline ? Date.parse(D.next_deadline) : NaN;
+  if (isNaN(t)) { box.style.display = 'none'; return; }
+  const when = new Intl.DateTimeFormat('en-AU', {weekday:'short', day:'numeric', month:'short', hour:'numeric', minute:'2-digit', timeZoneName:'short'}).format(t);
+  const pad = n => String(n).padStart(2, '0');
+  let showDate = true;
+  function paint(){
+    const left = t - Date.now();
+    box.classList.toggle('urgent', left > 0 && left < 864e5);
+    if (left <= 0) { lab.textContent = 'GW' + nz(D.next_gw, '') + ' deadline'; val.textContent = 'Passed'; return; }
+    if (showDate) { lab.textContent = 'GW' + nz(D.next_gw, '') + ' deadline'; val.textContent = when; return; }
+    let s = Math.floor(left / 1000);
+    const d = Math.floor(s / 86400); s %= 86400;
+    const h = Math.floor(s / 3600); s %= 3600;
+    lab.textContent = 'Deadline in';
+    val.textContent = (d ? d + 'd ' : '') + pad(h) + 'h ' + pad(Math.floor(s / 60)) + 'm ' + pad(s % 60) + 's';
+  }
+  paint();
+  setInterval(paint, 1000);
+  setInterval(() => { box.classList.add('swap'); setTimeout(() => { showDate = !showDate; paint(); box.classList.remove('swap'); }, 250); }, 6000);
+})();
 (function ticker(){
   const rows = (D.weekly||{})[String(D.current_gw)] || [];
   if (!rows.length) { $('ticker').style.display = 'none'; return; }

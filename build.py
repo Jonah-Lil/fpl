@@ -150,13 +150,19 @@ def league_matches(league_id: int) -> list[dict]:
     return out
 
 
-def gameweeks() -> tuple[int | None, int | None, set[int]]:
-    """Return (current_gw, next_gw, set of finished gameweeks)."""
+def gameweeks() -> tuple[int | None, int | None, set[int], str | None]:
+    """Return (current_gw, next_gw, set of finished gameweeks, next deadline).
+
+    The deadline is the FPL API's ISO 8601 UTC timestamp for the next
+    gameweek (e.g. "2026-11-22T11:00:00Z"); the page converts it to each
+    viewer's local time and counts down to it.
+    """
     events = fetch("bootstrap-static/")["events"]
     current = next((e["id"] for e in events if e.get("is_current")), None)
-    nxt = next((e["id"] for e in events if e.get("is_next")), None)
+    nxt = next((e for e in events if e.get("is_next")), None)
     finished = {e["id"] for e in events if e.get("finished")}
-    return current, nxt, finished
+    return (current, nxt["id"] if nxt else None, finished,
+            nxt.get("deadline_time") if nxt else None)
 
 
 # --------------------------------------------------------------------------
@@ -489,7 +495,7 @@ def build_payload(league_id: int) -> dict:
     print(f"fetching league {league_id} ...")
     league = league_standings(league_id)
     matches = league_matches(league_id)
-    current_gw, next_gw, finished = gameweeks()
+    current_gw, next_gw, finished, next_deadline = gameweeks()
     print(f"  current GW {current_gw}, next GW {next_gw}, "
           f"{len(finished)} finished, {len(matches)} matches")
 
@@ -514,6 +520,7 @@ def build_payload(league_id: int) -> dict:
         "league_id": str(league_id),
         "current_gw": current_gw,
         "next_gw": next_gw,
+        "next_deadline": next_deadline,
         "generated": datetime.now(timezone.utc).strftime("%d %b %Y, %H:%M UTC"),
         "managers": ordered,
         "weekly": weekly_results(matches, finished),
