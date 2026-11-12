@@ -80,6 +80,7 @@
   .lightbody{background:linear-gradient(180deg,#f6f6f6,#d8d8d8);color:#111;padding:12px;display:flex;align-items:center;gap:12px}
   .seg{display:inline-block;width:30px;height:12px;border:1px solid #0d0e10;box-shadow:inset 0 1px 0 rgba(255,255,255,.25);background:#2c2f34}
   .seg.on{background:linear-gradient(180deg,#8be65a,#2f9a1c)}
+  .hl .seg.on{background:#0b1704}.hl .seg{border-color:#0b1704;background:transparent}
   .lrow{display:grid;grid-template-columns:44px 40px minmax(160px,1fr) 120px 64px;align-items:center;gap:8px;min-height:50px;padding:4px 14px;border-bottom:1px solid #0d0e10;font:700 19px 'Roboto Condensed',sans-serif}
   .lrow.dead{color:#9aa0a7}.lrow.dead .nm{text-decoration:line-through}
   .gwbox{width:44px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 14px/1.05 'Roboto Condensed',sans-serif;border:1px solid #0d0e10}
@@ -101,6 +102,12 @@
   .bars .pos i{display:block;height:100%;background:linear-gradient(180deg,#a6e566,#4f9a1f)}
   .bars .axis{width:2px;height:26px;background:#cfd2d6}
   .good{color:#9be05a}.bad{color:#ff7a6e}
+  .team,.fx-side,.fxm-n,.nm{overflow-wrap:anywhere;min-width:0}
+  .mrec,.fxm{display:none}
+  .lastres{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px 12px;padding:12px 14px;background:#1d1f23}
+  .lr-n{font:800 18px 'Roboto Condensed',sans-serif;overflow-wrap:break-word;min-width:0}
+  .lr-tag{grid-column:1 / -1;justify-self:center;font:900 16px 'Roboto Condensed',sans-serif;padding:4px 10px}
+  .gbox{min-width:0}
   .empty{padding:18px;color:#c3c7cc;font:600 17px 'Roboto Condensed',sans-serif}
   /* footer */
   footer{margin-top:40px}
@@ -121,12 +128,68 @@
   @keyframes tick{to{transform:translateX(-50%)}}
   @media (prefers-reduced-motion: reduce){.tick-track{animation:none}}
   @media (max-width:640px){
-    .wrap{padding:16px 10px 24px}
-    .hbar h1{font-size:26px}.hcrest{width:64px}
-    .ptitle{font-size:24px}
-    .fx{grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:8px;padding:6px 10px}
-    .fx-side{font-size:16px}.scorebox{font-size:20px}
-    .foot{padding-left:96px}.badge{width:80px}
+    .wrap{padding:14px 10px 24px}
+    .hbar{gap:10px 14px;padding:8px 14px 8px 26px}
+    .hbar h1{font-size:24px}.hcrest{width:60px;margin:-10px 0 -12px}
+    .hright{font-size:14px}
+    .dbar{padding:8px 14px}.dbar .a{font-size:20px}.dbar .b{font-size:16px}
+    .dl{padding:4px 10px;gap:8px}.dl-label{font-size:11px}.dl-value{font-size:16px;min-width:0}
+    .menu{margin-top:16px}
+    .arrow{width:40px;flex-basis:40px}
+    .mtab{min-width:0;min-height:50px;padding:0 14px;font-size:16px}
+    #view{padding-top:16px !important}
+    .row-wrap{gap:14px}
+    .panel{border-width:2px}
+    .panel-title{padding:10px 14px;gap:10px}
+    .ptitle{font-size:23px}.pnote{font-size:15px}
+    .panel-sub{padding:6px 10px}.sublabel{font-size:18px}
+    .panel-sub > .key{display:none}
+    .crest.big{width:52px;height:65px}
+    /* manager picker: one swipeable row of chips */
+    .mlist{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .mlist::-webkit-scrollbar{display:none}
+    .mlist .mitem{flex:0 0 auto;width:auto;white-space:nowrap;border-bottom:none;border-right:1px solid #0d0e10;font-size:16px;padding:0 14px}
+    /* my club */
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr)) !important;padding:12px !important;gap:10px !important}
+    .card{padding:10px 12px}.card-cap{font-size:12px}.card-val{font-size:26px}.card-note{font-size:14px}
+    .seg{width:22px}
+    .gbox{flex:1 1 100% !important}
+    .lastres{gap:8px;padding:10px}
+    .lr-n{font-size:16px;overflow-wrap:anywhere}
+    /* league table: rank, crest, team (+ record line), points */
+    .tblw{min-width:0 !important}
+    .trow{grid-template-columns:30px 36px minmax(0,1fr) 44px;gap:8px;padding:6px 10px;font-size:18px}
+    .dcol{display:none}
+    .thead{font-size:15px;white-space:nowrap}
+    .mrec{display:block;font:600 13px 'Roboto Condensed',sans-serif;color:#d0d4d9;margin-top:2px}
+    .hl .mrec{color:#1f3a0e}
+    .team{font-size:18px}.mgr{font-size:13px}
+    /* last man standing */
+    .lmsw{min-width:0 !important}
+    .lrow{grid-template-columns:26px 34px minmax(0,1fr) 72px 40px;gap:6px;padding:4px 10px;font-size:16px}
+    .lrow .seg{width:20px;height:10px}
+    .gwbox{width:40px;height:38px}
+    /* results: stacked scoreboard per fixture */
+    .fx{display:none}
+    .fxm{display:block;padding:6px 10px;border-bottom:1px solid #0d0e10}
+    .fxm-row{display:grid;grid-template-columns:30px minmax(0,1fr) 48px;align-items:center;gap:10px;min-height:42px;font:800 17px 'Roboto Condensed',sans-serif}
+    .fxm-row .crest{width:28px;height:35px}
+    .fxm-row.lose{color:#aeb3ba}
+    .fxm-s{justify-self:end;min-width:44px;text-align:center;padding:4px 0;background:linear-gradient(180deg,#2e3136,#0c0d0f);border:1px solid #8f9398;font:900 20px 'Roboto Condensed',sans-serif;color:#fff}
+    .fxm-row.lose .fxm-s{color:#8f9398}
+    /* luck: numbers on one line, bar underneath */
+    .luckw{min-width:0 !important}
+    .luckrow{grid-template-columns:minmax(0,1fr) 34px 52px 50px;gap:6px 8px;padding:6px 10px;font-size:16px}
+    .luckrow > :first-child{overflow-wrap:anywhere;min-width:0}
+    .luckrow > :nth-child(5){grid-column:1 / -1}
+    .bars{height:10px}.bars .axis{height:16px}
+    /* footer */
+    footer{margin-top:28px}
+    .foot{padding:6px 10px 6px 86px;gap:4px 10px}
+    .badge{width:72px;top:-18px;left:6px}
+    .prompt{font-size:16px;padding:0 2px}.plabel{font-size:16px}
+    .updated{margin-left:0;flex-basis:100%;font-size:13px}
+    .tick-item{font-size:15px}.tick-label{font-size:15px;padding:0 10px}
   }
 </style>
 </head>
@@ -239,29 +302,29 @@ function viewClub(){
     const mine = last.e1===m.entry_name ? last.s1 : last.s2, theirs = last.e1===m.entry_name ? last.s2 : last.s1;
     const oc = mine>theirs?'WIN':mine<theirs?'LOSS':'DRAW';
     const tag = oc==='WIN'?'background:#62ad2a;color:#0b1704':oc==='LOSS'?'background:#b5161c;color:#fff':'background:#6b7078;color:#fff';
-    lastHtml = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#1d1f23">'
-      + '<span style="font:800 19px \'Roboto Condensed\',sans-serif;flex:1;text-align:right">'+esc(last.e1)+'</span>'
+    lastHtml = '<div class="lastres">'
+      + '<span class="lr-n" style="text-align:right">'+esc(last.e1)+'</span>'
       + '<span class="scorebox" style="padding:0 14px"><span>'+last.s1+'</span><span class="sep">:</span><span>'+last.s2+'</span></span>'
-      + '<span style="font:800 19px \'Roboto Condensed\',sans-serif;flex:1">'+esc(last.e2)+'</span>'
-      + '<span style="font:900 16px \'Roboto Condensed\',sans-serif;padding:4px 10px;'+tag+'">'+oc+'</span></div>';
+      + '<span class="lr-n">'+esc(last.e2)+'</span>'
+      + '<span class="lr-tag" style="'+tag+'">'+oc+'</span></div>';
   }
   const mini = M.map((r,i) => '<div class="'+(r.entry===S.mgr?'hl':alt(i))+'" style="display:grid;grid-template-columns:26px 20px minmax(0,1fr) 24px 34px;align-items:center;gap:6px;padding:3px 12px;min-height:30px;border-bottom:1px solid #0d0e10;font:700 15px \'Roboto Condensed\',sans-serif">'
       + '<span class="n">'+nz(r.h2h_rank)+'</span>'+crest(r.entry,'tiny')
       + '<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(r.entry_name)+'</span>'
       + '<span class="n">'+nz(r.played,0)+'</span><span class="n" style="font-weight:900">'+nz(r.h2h_points,0)+'</span></div>').join('');
   return '<div class="row-wrap">'
-    + '<section class="panel" style="flex:1 1 230px"><div class="panel-sub"><span class="sublabel">Managers</span></div><div>'+mgrList()+'</div></section>'
+    + '<section class="panel" style="flex:1 1 230px"><div class="panel-sub"><span class="sublabel">Managers</span></div><div class="mlist">'+mgrList()+'</div></section>'
     + '<section class="panel" style="flex:999 1 520px">'
     +   '<div class="panel-title">'+crest(m.entry,'big')+'<div><h2 class="ptitle">'+esc(m.entry_name)+'</h2><div class="pnote">'+esc(m.player_name)+'</div></div></div>'
     +   '<div class="panel-sub"><span class="key" aria-hidden="true">LT</span><span class="key" aria-hidden="true">RT</span><span class="sublabel">Manager overview</span></div>'
-    +   '<div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">'
+    +   '<div class="stats" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">'
     +     stats.map(s => '<div class="card"><div class="card-cap">'+s[0]+'</div><div class="card-val">'+s[1]+' <span class="card-note">'+s[2]+'</span></div></div>').join('')
     +     '<div class="card"><div class="card-cap">LMS lives</div>'+livesHtml+'</div>'
     +   '</div>'
     +   '<div style="padding:0 16px 16px;display:flex;flex-wrap:wrap;gap:12px">'
-    +     '<div style="flex:1 1 240px;border:2px solid #9a9da2"><div class="boxhead">Next game</div><div class="greenbar">Gameweek '+nz(D.next_gw,'')+'</div>'
+    +     '<div class="gbox" style="flex:1 1 240px;border:2px solid #9a9da2"><div class="boxhead">Next game</div><div class="greenbar">Gameweek '+nz(D.next_gw,'')+'</div>'
     +       '<div class="lightbody">'+(opp?crest(opp.entry)+'<span style="font:800 20px \'Roboto Condensed\',sans-serif">vs '+esc(opp.name)+'</span>':'<span>No fixture</span>')+'</div></div>'
-    +     '<div style="flex:2 1 320px;border:2px solid #9a9da2"><div class="boxhead">Latest result · Gameweek '+nz(D.current_gw,'')+'</div>'+lastHtml+'</div>'
+    +     '<div class="gbox" style="flex:2 1 320px;border:2px solid #9a9da2"><div class="boxhead">Latest result · Gameweek '+nz(D.current_gw,'')+'</div>'+lastHtml+'</div>'
     +   '</div>'
     + '</section>'
     + '<section class="panel" style="flex:1 1 280px"><div class="panel-sub"><span class="sublabel">H2H table</span><span style="margin-left:auto;font:800 15px \'Roboto Condensed\',sans-serif">P&nbsp;&nbsp;&nbsp;PTS</span></div><div>'+mini+'</div></section>'
@@ -274,15 +337,16 @@ function viewTable(){
   if (S.sort==='pf') rows.sort((a,b) => (b.points_for||0)-(a.points_for||0));
   const body = rows.map((m,i) => '<button class="trow '+(m.entry===S.mgr?'hl':alt(i))+'" data-mgr="'+esc(m.entry)+'" aria-pressed="'+(m.entry===S.mgr)+'">'
       + '<span class="c">'+(S.sort==='pf'?i+1:nz(m.h2h_rank))+'</span>'+crest(m.entry)
-      + '<span><span class="team">'+esc(m.entry_name)+'</span><span class="mgr">'+esc(m.player_name)+'</span></span>'
-      + '<span class="n">'+nz(m.played,0)+'</span><span class="n">'+nz(m.won,0)+'</span><span class="n">'+nz(m.drawn,0)+'</span><span class="n">'+nz(m.lost,0)+'</span>'
-      + '<span class="n">'+fmt(m.points_for)+'</span><span class="n" style="font-weight:900">'+nz(m.h2h_points,0)+'</span></button>').join('');
+      + '<span class="nmcell"><span class="team">'+esc(m.entry_name)+'</span><span class="mgr">'+esc(m.player_name)+'</span>'
+      +   '<span class="mrec">'+nz(m.won,0)+'W '+nz(m.drawn,0)+'D '+nz(m.lost,0)+'L · '+fmt(m.points_for)+' PF</span></span>'
+      + '<span class="n dcol">'+nz(m.played,0)+'</span><span class="n dcol">'+nz(m.won,0)+'</span><span class="n dcol">'+nz(m.drawn,0)+'</span><span class="n dcol">'+nz(m.lost,0)+'</span>'
+      + '<span class="n dcol">'+fmt(m.points_for)+'</span><span class="n" style="font-weight:900">'+nz(m.h2h_points,0)+'</span></button>').join('');
   return '<section class="panel">'
     + '<div class="panel-title"><h2 class="ptitle">H2H League Table</h2><span class="pnote" style="margin-left:auto">After Gameweek '+nz(D.current_gw,'')+'</span></div>'
     + '<div class="panel-sub"><span class="key" aria-hidden="true">LT</span><span class="key" aria-hidden="true">RT</span><span class="sublabel">League Stage</span>'
     +   '<span style="margin-left:auto;display:flex;align-items:center;gap:8px"><button class="keybtn" data-act="sort" aria-label="Change sort order">X</button><span style="font:800 17px \'Roboto Condensed\',sans-serif">Sort: '+(S.sort==='pts'?'H2H points':'Points for')+'</span></span></div>'
-    + '<div class="scroll"><div style="min-width:760px">'
-    +   '<div class="trow thead"><span class="c">#</span><span></span><span>Manager</span><span class="n">P</span><span class="n">W</span><span class="n">D</span><span class="n">L</span><span class="n">'+(S.sort==='pf'?'▼ ':'')+'PF</span><span class="n">'+(S.sort==='pts'?'▼ ':'')+'PTS</span></div>'
+    + '<div class="scroll"><div class="tblw" style="min-width:760px">'
+    +   '<div class="trow thead"><span class="c">#</span><span></span><span>Manager</span><span class="n dcol">P</span><span class="n dcol">W</span><span class="n dcol">D</span><span class="n dcol">L</span><span class="n dcol">'+(S.sort==='pf'?'▼ ':'')+'PF</span><span class="n">'+(S.sort==='pts'?'▼ ':'')+'PTS</span></div>'
     +   body + '</div></div></section>';
 }
 
@@ -313,7 +377,7 @@ function viewLms(){
   return '<div class="row-wrap">'
     + '<section class="panel" style="flex:999 1 560px"><div class="panel-title"><h2 class="ptitle">Last Man Standing</h2><span class="pnote" style="margin-left:auto">'+alive+' alive · '+(L.length-alive)+' out</span></div>'
     +   '<div class="panel-sub"><span class="key" aria-hidden="true">LT</span><span class="key" aria-hidden="true">RT</span><span class="sublabel">Survivors</span></div>'
-    +   '<div class="scroll"><div style="min-width:520px"><div class="lrow" style="background:#0e0f11;font-weight:800;min-height:40px"><span class="c">#</span><span></span><span>Manager</span><span>Lives</span><span class="n">Out</span></div>'+rows+'</div></div></section>'
+    +   '<div class="scroll"><div class="lmsw" style="min-width:520px"><div class="lrow" style="background:#0e0f11;font-weight:800;min-height:40px"><span class="c">#</span><span></span><span>Manager</span><span>Lives</span><span class="n">Out</span></div>'+rows+'</div></div></section>'
     + '<div style="flex:1 1 380px;display:flex;flex-direction:column;gap:20px;min-width:0">'
     +   '<section class="panel"><div class="panel-sub"><span class="sublabel">Elimination schedule</span>'+(D.next_gw?'<span style="margin-left:auto;font:700 15px \'Roboto Condensed\',sans-serif">Next: GW'+D.next_gw+'</span>':'')+'</div>'
     +     '<div style="padding:16px">'+(sched?'<div style="display:flex;flex-wrap:wrap;gap:5px">'+sched+'</div>':'<span class="empty">Not allocated yet.</span>')
@@ -330,7 +394,10 @@ function viewResults(){
     return '<div class="fx '+alt(i)+'">'
       + '<span class="fx-side'+(w2?' lose':'')+'" style="justify-content:flex-end;text-align:right">'+esc(f.e1)+crestByName(f.e1)+'</span>'
       + '<span class="scorebox"><span class="'+(w2?'lose':'')+'">'+f.s1+'</span><span class="sep">:</span><span class="'+(w1?'lose':'')+'">'+f.s2+'</span></span>'
-      + '<span class="fx-side'+(w1?' lose':'')+'">'+crestByName(f.e2)+esc(f.e2)+'</span></div>';
+      + '<span class="fx-side'+(w1?' lose':'')+'">'+crestByName(f.e2)+esc(f.e2)+'</span></div>'
+      + '<div class="fxm '+alt(i)+'">'
+      +   '<div class="fxm-row'+(w2?' lose':'')+'">'+crestByName(f.e1)+'<span class="fxm-n">'+esc(f.e1)+'</span><span class="fxm-s">'+f.s1+'</span></div>'
+      +   '<div class="fxm-row'+(w1?' lose':'')+'">'+crestByName(f.e2)+'<span class="fxm-n">'+esc(f.e2)+'</span><span class="fxm-s">'+f.s2+'</span></div></div>';
   }).join('');
   const ev = ((D.lms_events||{})[String(g)]||[]);
   const lms = ev.length ? '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 18px;background:linear-gradient(180deg,#2e3136,#17191c);font:700 18px \'Roboto Condensed\',sans-serif">'
@@ -348,16 +415,18 @@ function viewForm(){
   const m = byId[S.mgr];
   if (!ids.length || !m) return '<section class="panel"><div class="panel-title"><h2 class="ptitle">League Position by Gameweek</h2></div>'+empty('No gameweeks played yet.')+'</section>';
   const n = M.length, len = Math.max(...ids.map(i => H[i].length));
-  const W = 880, HT = Math.max(240, n*20+44), P = {t:16, r:16, b:28, l:30};
+  const narrow = window.innerWidth <= 640;
+  const fs = narrow ? 14 : 12;
+  const W = narrow ? 400 : 880, HT = narrow ? Math.max(300, n*24+44) : Math.max(240, n*20+44), P = {t:16, r:16, b:28, l:30};
   const x = i => P.l + (len<2 ? 0 : i*(W-P.l-P.r)/(len-1));
   const y = p => P.t + (n<2 ? 0 : (p-1)*(HT-P.t-P.b)/(n-1));
   let s = '<svg viewBox="0 0 '+W+' '+HT+'" style="width:100%;height:auto;display:block" role="img" aria-label="League position by gameweek, '+esc(m.entry_name)+' highlighted">';
   for (let p = 1; p <= n; p += Math.max(1, Math.round(n/4))) {
     s += '<line x1="'+P.l+'" x2="'+(W-P.r)+'" y1="'+y(p)+'" y2="'+y(p)+'" stroke="#26292d"/>'
-       + '<text x="'+(P.l-10)+'" y="'+(y(p)+4)+'" fill="#c3c7cc" font-size="12" text-anchor="end" font-family="Roboto Condensed, sans-serif">'+p+'</text>';
+       + '<text x="'+(P.l-10)+'" y="'+(y(p)+4)+'" fill="#c3c7cc" font-size="'+fs+'" text-anchor="end" font-family="Roboto Condensed, sans-serif">'+p+'</text>';
   }
   for (let i = 0; i < len; i += Math.max(1, Math.ceil(len/10)))
-    s += '<text x="'+x(i)+'" y="'+(HT-6)+'" fill="#c3c7cc" font-size="12" text-anchor="middle" font-family="Roboto Condensed, sans-serif">GW'+(i+1)+'</text>';
+    s += '<text x="'+x(i)+'" y="'+(HT-6)+'" fill="#c3c7cc" font-size="'+fs+'" text-anchor="middle" font-family="Roboto Condensed, sans-serif">'+(narrow?'':'GW')+(i+1)+'</text>';
   const line = id => H[id].map((p,i) => x(i)+','+y(p)).join(' ');
   ids.forEach(id => { if (id!==S.mgr) s += '<polyline points="'+line(id)+'" fill="none" stroke="#4b5057" stroke-width="1.4" stroke-linejoin="round"><title>'+esc((byId[id]||{}).entry_name||id)+'</title></polyline>'; });
   const hp = H[S.mgr]||[];
@@ -365,7 +434,7 @@ function viewForm(){
                     + '<circle cx="'+x(hp.length-1)+'" cy="'+y(hp[hp.length-1])+'" r="6" fill="#9be05a" stroke="#0b1704" stroke-width="2"/>';
   s += '</svg>';
   return '<div class="row-wrap">'
-    + '<section class="panel" style="flex:1 1 230px"><div class="panel-sub"><span class="sublabel">Highlight</span></div><div>'+mgrList()+'</div></section>'
+    + '<section class="panel" style="flex:1 1 230px"><div class="panel-sub"><span class="sublabel">Highlight</span></div><div class="mlist">'+mgrList()+'</div></section>'
     + '<section class="panel" style="flex:999 1 620px"><div class="panel-title"><h2 class="ptitle">League Position by Gameweek</h2></div>'
     +   '<div class="panel-sub"><span class="key" aria-hidden="true">LT</span><span class="key" aria-hidden="true">RT</span><span class="sublabel">'+esc(m.entry_name)+': now '+nz(m.h2h_rank)+' of '+n+'</span></div>'
     +   '<div style="padding:18px 16px 12px">'+s+'</div></section></div>';
@@ -385,7 +454,7 @@ function viewLuck(){
       + '<span class="n '+(on?'':(good?'good':'bad'))+'" style="font-weight:900">'+(good?'+':'')+r.luck.toFixed(1)+'</span>'
       + '<span class="bars"><span class="h neg"><i style="width:'+(good?'0%':w)+'"></i></span><span class="axis"></span><span class="h pos"><i style="width:'+(good?w:'0%')+'"></i></span></span></div>';
   }).join('');
-  return head + '<div class="scroll"><div style="min-width:720px"><div class="luckrow" style="background:#0e0f11;font-weight:800;min-height:40px"><span>Manager</span><span class="n">Pts</span><span class="n">Expected</span><span class="n">Diff</span><span style="text-align:center">Unlucky · Lucky</span></div>'+rows+'</div></div></section>';
+  return head + '<div class="scroll"><div class="luckw" style="min-width:720px"><div class="luckrow" style="background:#0e0f11;font-weight:800;min-height:40px"><span>Manager</span><span class="n">Pts</span><span class="n">Expected</span><span class="n">Diff</span><span style="text-align:center">Unlucky · Lucky</span></div>'+rows+'</div></div></section>';
 }
 
 const VIEWS = { club:viewClub, table:viewTable, lms:viewLms, results:viewResults, form:viewForm, luck:viewLuck };
@@ -397,7 +466,12 @@ function render(){
   if (S.tab==='table') ctx = '<button class="prompt" data-act="sort"><span class="btn-x" aria-hidden="true">X</span>Sort</button>';
   if (S.tab==='results' && gws.length) ctx = '<button class="prompt" data-act="prevGw" aria-label="Previous gameweek"><span class="key">LT</span></button><button class="prompt" data-act="nextGw" aria-label="Next gameweek"><span class="key">RT</span></button><span class="plabel">Gameweek</span>';
   $('fctx').innerHTML = ctx;
+  const centre = (box, el) => { if (box && el) box.scrollLeft = el.offsetLeft - (box.clientWidth - el.offsetWidth) / 2; };
+  centre($('tabs'), $('tabs').querySelector('.on'));
+  document.querySelectorAll('.mlist').forEach(b => centre(b, b.querySelector('.on')));
 }
+let lastW = window.innerWidth;
+window.addEventListener('resize', () => { if ((window.innerWidth <= 640) !== (lastW <= 640)) { lastW = window.innerWidth; render(); } });
 
 function step(d){ const i = TABS.findIndex(t => t[0]===S.tab); S.tab = TABS[(i + d + TABS.length) % TABS.length][0]; }
 
